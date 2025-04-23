@@ -52,11 +52,26 @@ export interface DateRange {
   end: string | null;
 }
 
+export interface ChartDataset {
+  data: number[];
+  backgroundColor: string[];
+  borderColor?: string[];
+  borderWidth?: number;
+  label?: string;
+  tension?: number;
+  fill?: boolean;
+}
+
 export interface ChartData {
-  status: any;
-  priority: any;
-  timeline: any;
-  category: any;
+  labels: string[];
+  datasets: ChartDataset[];
+}
+
+export interface ChartDataState {
+  status: ChartData;
+  priority: ChartData;
+  timeline: ChartData;
+  category: ChartData;
 }
 
 export type UserStatus = 'online' | 'break' | 'shadow' | 'offline';
