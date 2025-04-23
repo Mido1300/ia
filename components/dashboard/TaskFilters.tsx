@@ -8,10 +8,10 @@ import DateRangeModal from '../modals/DateRangeModal';
 import AddTaskModal from '../modals/AddTaskModal';
 
 export default function TaskFilters() {
-  const { 
-    filters, 
-    setFilters, 
-    sort, 
+  const {
+    filters,
+    setFilters,
+    sort,
     setSort,
     view,
     setView,
@@ -20,54 +20,54 @@ export default function TaskFilters() {
     canUndo,
     canRedo
   } = useTasks();
-  
+
   const [showDateRangeModal, setShowDateRangeModal] = useState(false);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
-  
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters({ ...filters, search: e.target.value });
   };
-  
+
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { id, value } = e.target;
-    
+
     if (id === 'date-filter' && value === 'custom') {
       setShowDateRangeModal(true);
       return;
     }
-    
-    // Reset date range if any other date filter is selected
-    if (id === 'date-filter' && value !== 'custom') {
-      setFilters({ 
-        ...filters, 
-        [id.replace('-filter', '')]: value,
-        dateRange: { start: null, end: null } 
+
+    // Reset dateRange when selecting a non-custom date filter
+    if (id === 'date-filter') {
+      setFilters({
+        ...filters,
+        date: value,
+        dateRange: value === 'custom' ? filters.dateRange : { start: null, end: null }
       });
       return;
     }
-    
+
     setFilters({ ...filters, [id.replace('-filter', '')]: value });
   };
-  
+
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSort({ ...sort, by: e.target.value as Sort['by'] });
   };
-  
+
   const toggleSortDirection = () => {
     setSort({ ...sort, direction: sort.direction === 'asc' ? 'desc' : 'asc' });
   };
-  
+
   const toggleView = (newView: 'list' | 'graph') => {
     if (view !== newView) {
       setView(newView);
     }
   };
-  
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div className="flex flex-wrap items-center gap-2">
-          <button 
+          <button
             onClick={() => setShowAddTaskModal(true)}
             className="bg-primary text-white py-2 px-4 rounded-lg shadow hover:shadow-md flex items-center transition-all duration-300"
           >
@@ -76,14 +76,14 @@ export default function TaskFilters() {
           </button>
         </div>
         <div className="flex items-center">
-          <button 
+          <button
             onClick={() => toggleView('list')}
             className={`py-2 px-3 rounded-l-lg shadow ${view === 'list' ? 'bg-primary text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
             aria-label="List view"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
           </button>
-          <button 
+          <button
             onClick={() => toggleView('graph')}
             className={`py-2 px-3 rounded-r-lg shadow border-l ${view === 'graph' ? 'bg-primary text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
             aria-label="Graph view"
@@ -105,22 +105,22 @@ export default function TaskFilters() {
               <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
               </span>
-              <input 
-                id="search-input" 
-                type="text" 
-                className="block w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary text-base" 
+              <input
+                id="search-input"
+                type="text"
+                className="block w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary text-base"
                 placeholder="Search tasks..."
-                value={filters.search}
+                value={filters.search || ''}
                 onChange={handleSearchChange}
               />
             </div>
           </div>
-          
+
           <div className="flex flex-wrap items-center gap-2">
-            <select 
-              id="category-filter" 
+            <select
+              id="category-filter"
               className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base"
-              value={filters.category}
+              value={filters.category || ''}
               onChange={handleFilterChange}
             >
               <option value="">All Categories</option>
@@ -130,10 +130,10 @@ export default function TaskFilters() {
               <option value="Research">Research</option>
             </select>
 
-            <select 
-              id="priority-filter" 
+            <select
+              id="priority-filter"
               className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base"
-              value={filters.priority}
+              value={filters.priority || ''}
               onChange={handleFilterChange}
             >
               <option value="">All Priorities</option>
@@ -142,10 +142,10 @@ export default function TaskFilters() {
               <option value="Low">Low</option>
             </select>
 
-            <select 
-              id="status-filter" 
+            <select
+              id="status-filter"
               className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base"
-              value={filters.status}
+              value={filters.status || ''}
               onChange={handleFilterChange}
             >
               <option value="">All Status</option>
@@ -153,10 +153,10 @@ export default function TaskFilters() {
               <option value="Active">Active</option>
             </select>
 
-            <select 
-              id="date-filter" 
+            <select
+              id="date-filter"
               className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base"
-              value={filters.dateRange.start ? 'custom' : filters.date || ''}
+              value={filters.dateRange?.start ? 'custom' : filters.date || ''}
               onChange={handleFilterChange}
             >
               <option value="">All Dates</option>
@@ -168,18 +168,18 @@ export default function TaskFilters() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={undo}
               disabled={!canUndo}
-              className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 ${!canUndo ? 'opacity-50 cursor-not-allowed' : ''}`} 
+              className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 ${!canUndo ? 'opacity-50 cursor-not-allowed' : ''}`}
               title="Undo"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
             </button>
-            <button 
+            <button
               onClick={redo}
               disabled={!canRedo}
-              className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 ${!canRedo ? 'opacity-50 cursor-not-allowed' : ''}`} 
+              className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 ${!canRedo ? 'opacity-50 cursor-not-allowed' : ''}`}
               title="Redo"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
@@ -191,8 +191,8 @@ export default function TaskFilters() {
       {/* Sort Options */}
       <div className="flex items-center justify-end mb-4">
         <label className="mr-2 text-sm font-medium">Sort By:</label>
-        <select 
-          id="sort-select" 
+        <select
+          id="sort-select"
           className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base"
           value={sort.by}
           onChange={handleSortChange}
@@ -202,7 +202,7 @@ export default function TaskFilters() {
           <option value="title">Title</option>
           <option value="created">Created Date</option>
         </select>
-        <button 
+        <button
           onClick={toggleSortDirection}
           className="ml-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
           aria-label={sort.direction === 'asc' ? 'Sort ascending' : 'Sort descending'}
@@ -214,28 +214,29 @@ export default function TaskFilters() {
           )}
         </button>
       </div>
-      
+
       <AnimatePresence>
         {showDateRangeModal && (
-          <DateRangeModal 
+          <DateRangeModal
             isOpen={showDateRangeModal}
             onClose={() => setShowDateRangeModal(false)}
             onApply={(start, end) => {
               setFilters({
                 ...filters,
+                date: 'custom',
                 dateRange: { start, end }
               });
               setShowDateRangeModal(false);
             }}
-            initialStartDate={filters.dateRange.start || ''}
-            initialEndDate={filters.dateRange.end || ''}
+            initialStartDate={filters.dateRange?.start || ''}
+            initialEndDate={filters.dateRange?.end || ''}
           />
         )}
       </AnimatePresence>
-      
+
       <AnimatePresence>
         {showAddTaskModal && (
-          <AddTaskModal 
+          <AddTaskModal
             isOpen={showAddTaskModal}
             onClose={() => setShowAddTaskModal(false)}
           />
