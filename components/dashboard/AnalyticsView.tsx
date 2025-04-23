@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTasks } from '@/context/TaskContext';
-import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, RadialLinearScale } from 'chart.js';
+import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, RadialLinearScale, ChartData } from 'chart.js';
 import { Doughnut, Bar, Line, PolarArea } from 'react-chartjs-2';
 import { motion } from 'framer-motion';
 
@@ -20,43 +20,84 @@ ChartJS.register(
   Legend
 );
 
+// Define the initial chart data using ChartData type
+const initialChartData = {
+  status: {
+    labels: [],
+    datasets: [{
+      data: [],
+      backgroundColor: [],
+      borderColor: [],
+      borderWidth: 1
+    }]
+  } as ChartData<'doughnut', number[], string>,
+  priority: {
+    labels: [],
+    datasets: [{
+      label: 'Tasks',
+      data: [],
+      backgroundColor: [],
+      borderColor: [],
+      borderWidth: 1
+    }]
+  } as ChartData<'bar', number[], string>,
+  timeline: {
+    labels: [],
+    datasets: [{
+      label: 'Completed Tasks',
+      data: [],
+      borderColor: '',
+      backgroundColor: '',
+      borderWidth: 2,
+      tension: 0.3,
+      fill: true
+    }]
+  } as ChartData<'line', number[], string>,
+  category: {
+    labels: [],
+    datasets: [{
+      data: [],
+      backgroundColor: [],
+      borderWidth: 1
+    }]
+  } as ChartData<'polarArea', number[], string>
+};
+
 export default function AnalyticsView() {
   const { tasks } = useTasks();
-  const [chartData, setChartData] = useState({
-    status: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
-    priority: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
-    timeline: { labels: [], datasets: [{ data: [], borderColor: '', backgroundColor: '' }] },
-    category: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
-  });
-  
+  const [chartData, setChartData] = useState<{
+    status: ChartData<'doughnut', number[], string>;
+    priority: ChartData<'bar', number[], string>;
+    timeline: ChartData<'line', number[], string>;
+    category: ChartData<'polarArea', number[], string>;
+  }>(initialChartData);
+
   useEffect(() => {
     // Status chart data
     const completed = tasks.filter(t => t.completed).length;
     const pending = tasks.length - completed;
-    
+
     // Priority chart data
     const highPriority = tasks.filter(t => t.priority === 'High').length;
     const mediumPriority = tasks.filter(t => t.priority === 'Medium').length;
     const lowPriority = tasks.filter(t => t.priority === 'Low').length;
-    
+
     // Category chart data
     const development = tasks.filter(t => t.category === 'Development').length;
     const design = tasks.filter(t => t.category === 'Design').length;
     const marketing = tasks.filter(t => t.category === 'Marketing').length;
     const research = tasks.filter(t => t.category === 'Research').length;
-    
+
     // Timeline data - last 7 days
-    const dateLabels = [];
-    const completionData = [];
+    const dateLabels: string[] = [];
+    const completionData: number[] = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       dateLabels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-      
-      // Simulate data - in a real app, this would come from completed tasks dates
       completionData.push(Math.floor(Math.random() * 5) + 1);
     }
-    
+
     setChartData({
       status: {
         labels: ['Completed', 'Pending'],
@@ -120,8 +161,8 @@ export default function AnalyticsView() {
   }, [tasks]);
 
   // Productivity score
-  const productivityScore = tasks.length > 0 
-    ? Math.round((tasks.filter(t => t.completed).length / tasks.length) * 100) 
+  const productivityScore = tasks.length > 0
+    ? Math.round((tasks.filter(t => t.completed).length / tasks.length) * 100)
     : 0;
 
   // Calculate upcoming deadlines
@@ -142,7 +183,7 @@ export default function AnalyticsView() {
     >
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h2 className="text-xl font-bold mb-6 text-primary">Task Analytics</h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -152,7 +193,7 @@ export default function AnalyticsView() {
           >
             <h3 className="text-lg font-semibold mb-4">Task Status</h3>
             <div className="h-64">
-              <Doughnut 
+              <Doughnut
                 data={chartData.status}
                 options={{
                   responsive: true,
@@ -166,7 +207,7 @@ export default function AnalyticsView() {
               />
             </div>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -175,7 +216,7 @@ export default function AnalyticsView() {
           >
             <h3 className="text-lg font-semibold mb-4">Priority Distribution</h3>
             <div className="h-64">
-              <Bar 
+              <Bar
                 data={chartData.priority}
                 options={{
                   responsive: true,
@@ -197,7 +238,7 @@ export default function AnalyticsView() {
               />
             </div>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -206,7 +247,7 @@ export default function AnalyticsView() {
           >
             <h3 className="text-lg font-semibold mb-4">Task Completion Timeline</h3>
             <div className="h-64">
-              <Line 
+              <Line
                 data={chartData.timeline}
                 options={{
                   responsive: true,
@@ -228,7 +269,7 @@ export default function AnalyticsView() {
               />
             </div>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -237,7 +278,7 @@ export default function AnalyticsView() {
           >
             <h3 className="text-lg font-semibold mb-4">Category Distribution</h3>
             <div className="h-64">
-              <PolarArea 
+              <PolarArea
                 data={chartData.category}
                 options={{
                   responsive: true,
@@ -252,7 +293,7 @@ export default function AnalyticsView() {
             </div>
           </motion.div>
         </div>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -272,7 +313,7 @@ export default function AnalyticsView() {
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Based on your task completion rate</p>
             </div>
-            
+
             <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-100 dark:border-purple-800">
               <h3 className="text-lg font-semibold mb-2 text-purple-700 dark:text-purple-300">Time Management</h3>
               <div className="flex items-center">
@@ -281,7 +322,7 @@ export default function AnalyticsView() {
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Average hours per task</p>
             </div>
-            
+
             <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-100 dark:border-amber-800">
               <h3 className="text-lg font-semibold mb-2 text-amber-700 dark:text-amber-300">Upcoming Deadlines</h3>
               <div className="text-2xl font-bold text-amber-600 dark:text-amber-300">{upcomingDeadlines}</div>
